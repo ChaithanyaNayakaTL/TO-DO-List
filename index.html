@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>To-Do List with Priority</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+      margin: 0;
+      padding: 20px;
+    }
+    h1 {
+      text-align: center;
+    }
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+      background: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    .task {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px;
+      border-bottom: 1px solid #ddd;
+    }
+    .completed {
+      text-decoration: line-through;
+      color: grey;
+    }
+    .controls button {
+      margin: 5px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>To-Do List</h1>
+    <input type="text" id="taskTitle" placeholder="Task Title" />
+    <select id="taskPriority">
+      <option value="High">High</option>
+      <option value="Medium">Medium</option>
+      <option value="Low">Low</option>
+    </select>
+    <button onclick="addTask()">Add Task</button>
+    <button onclick="sortTasks()">Sort by Priority</button>
+    <div class="controls">
+      <button onclick="filterTasks('all')">All</button>
+      <button onclick="filterTasks('completed')">Completed</button>
+      <button onclick="filterTasks('pending')">Pending</button>
+    </div>
+    <div id="taskList"></div>
+  </div>
+
+  <script>
+    const tasks = [];
+
+    function addTask() {
+      const title = document.getElementById('taskTitle').value;
+      const priority = document.getElementById('taskPriority').value;
+      if (title) {
+        tasks.push({ title, priority, completed: false });
+        document.getElementById('taskTitle').value = '';
+        displayTasks();
+      }
+    }
+
+    function toggleTask(index) {
+      tasks[index].completed = !tasks[index].completed;
+      displayTasks();
+    }
+
+    function deleteTask(index) {
+      tasks.splice(index, 1);
+      displayTasks();
+    }
+
+    function sortTasks() {
+      const priorityOrder = { 'High': 1, 'Medium': 2, 'Low': 3 };
+      // Bubble Sort
+      for (let i = 0; i < tasks.length - 1; i++) {
+        for (let j = 0; j < tasks.length - i - 1; j++) {
+          if (priorityOrder[tasks[j].priority] > priorityOrder[tasks[j + 1].priority]) {
+            [tasks[j], tasks[j + 1]] = [tasks[j + 1], tasks[j]];
+          }
+        }
+      }
+      displayTasks();
+    }
+
+    function filterTasks(filter) {
+      displayTasks(filter);
+    }
+
+    function displayTasks(filter = 'all') {
+      const list = document.getElementById('taskList');
+      list.innerHTML = '';
+      tasks.forEach((task, index) => {
+        if (
+          (filter === 'completed' && !task.completed) ||
+          (filter === 'pending' && task.completed)
+        ) return;
+
+        const taskDiv = document.createElement('div');
+        taskDiv.className = 'task';
+        const titleSpan = document.createElement('span');
+        titleSpan.textContent = `${task.title} (${task.priority})`;
+        if (task.completed) titleSpan.classList.add('completed');
+        titleSpan.onclick = () => toggleTask(index);
+
+        const delBtn = document.createElement('button');
+        delBtn.textContent = 'Delete';
+        delBtn.onclick = () => deleteTask(index);
+
+        taskDiv.appendChild(titleSpan);
+        taskDiv.appendChild(delBtn);
+        list.appendChild(taskDiv);
+      });            
+    }
+  </script>
+</body>
+</html>
